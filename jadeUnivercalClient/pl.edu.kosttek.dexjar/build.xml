@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright 2011 Google Inc.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+<project name="secondary_dex_sample" default="help">
+
+   
+    <property file="local.properties" />
+
+    <property file="ant.properties" />
+
+    <loadproperties srcFile="project.properties" />
+
+    <!-- quick check on sdk.dir -->
+    <fail
+            message="sdk.dir is missing. Make sure to generate local.properties using 'android update project' or to inject it through an env var"
+            unless="sdk.dir"
+    />
+
+    
+    <macrodef name="dex-helper-mod">
+        <attribute name="input-dir" />
+        <attribute name="output-dex-file" />
+    
+        <element name="extra-parameters" optional="yes" />
+        <attribute name="nolocals" default="false" />
+        <sequential>
+        
+            <if>
+                <condition>
+                    <isreference refid="out.dex.jar.input.ref" />
+                </condition>
+                <else>
+                    <path id="out.dex.jar.input.ref">
+                        <path refid="project.all.jars.path" />
+
+                    </path>
+                </else>
+            </if>
+
+            <echo>Converting compiled files and external libraries into @{output-dex-file}...</echo>
+            <dex executable="${dx}"
+                    output="@{output-dex-file}"
+                    nolocals="@{nolocals}"
+                    verbose="${verbose}">
+                <path path="@{input-dir}"/>
+                <!--<path refid="out.dex.jar.input.ref" />-->
+
+               <!-- <external-libs /> -->
+            </dex>
+        </sequential>
+    </macrodef>
+
+    <target name="-dex" depends="-compile, -post-compile, -obfuscate"
+            unless="do.not.compile">
+        <if condition="${manifest.hasCode}">
+            <then>
+                <!-- Create staging directories to store .class files to be converted to the -->
+                <!-- default dex and the secondary dex. -->
+
+                <mkdir dir="${out.classes.absolute.dir}.2"/>
+                <copy todir="${out.classes.absolute.dir}.2" >
+                    <fileset dir="${out.classes.absolute.dir}" >
+                        <include name="${outpackage}/**" />			
+                    </fileset>
+                </copy>
+
+                <mkdir dir="${out.absolute.dir}/temp_dex_dir" />
+                <dex-helper-mod input-dir="${out.classes.absolute.dir}.2"
+                    output-dex-file="${out.absolute.dir}/temp_dex_dir/classes.dex" />
+                <jar destfile="${out.absolute.dir}/${outputjar}"
+                     basedir="${out.absolute.dir}/temp_dex_dir" includes="classes.dex" />
+            </then>
+            <else>
+                <echo>hasCode = false. Skipping...</echo>
+            </else>
+        </if>
+    </target>
+
+    <!-- version-tag: custom -->
+    <import file="${sdk.dir}/tools/ant/build.xml" />
+
+</project>

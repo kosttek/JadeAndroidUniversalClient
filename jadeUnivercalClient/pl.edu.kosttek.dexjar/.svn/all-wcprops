@@ -1,0 +1,47 @@
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/!svn/ver/8/trunk/android-custom-class-loading-sample
+END
+.project
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/!svn/ver/3/trunk/android-custom-class-loading-sample/.project
+END
+local.properties
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/!svn/ver/4/trunk/android-custom-class-loading-sample/local.properties
+END
+AndroidManifest.xml
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/!svn/ver/3/trunk/android-custom-class-loading-sample/AndroidManifest.xml
+END
+Readme.txt
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/!svn/ver/6/trunk/android-custom-class-loading-sample/Readme.txt
+END
+build.xml
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/!svn/ver/8/trunk/android-custom-class-loading-sample/build.xml
+END
+.classpath
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/!svn/ver/3/trunk/android-custom-class-loading-sample/.classpath
+END
+project.properties
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/!svn/ver/6/trunk/android-custom-class-loading-sample/project.properties
+END

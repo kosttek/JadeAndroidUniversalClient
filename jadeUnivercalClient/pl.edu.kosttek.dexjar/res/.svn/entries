@@ -1,0 +1,43 @@
+10
+
+dir
+8
+http://android-custom-class-loading-sample.googlecode.com/svn/trunk/android-custom-class-loading-sample/res
+http://android-custom-class-loading-sample.googlecode.com/svn
+
+
+
+2011-07-28T08:01:13.735817Z
+3
+fchung@google.com
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+85806d40-32c6-f9fa-11bc-923e26836ef8
+
+layout
+dir
+
+values
+dir
+
+drawable-hdpi
+dir
+
+drawable-ldpi
+dir
+
+drawable-mdpi
+dir
+

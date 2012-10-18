@@ -13,8 +13,10 @@ import jade.wrapper.StaleProxyException;
 import java.util.ArrayList;
 import java.util.List;
 
+import pl.edu.kosttek.jadebook.JadeAndBookbuy;
 import pl.edu.kosttek.jadebook.R;
 import pl.edu.kosttek.jadebook.agent.BuyerInterface;
+import pl.edu.kosttek.jadebook.config.Config;
 import pl.edu.kosttek.jadebook.connection.ServerConnection;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -35,8 +37,8 @@ import android.widget.TextView;
 
 public class JadeAndBookbuyActivity extends Activity {
 	public static final int PIERWSZY_ELEMENT = 1;
-    String host = "10.10.0.1";
-    String port = "1099";
+    String host = Config.jadeServerhost;
+    String port = Config.jadeServerPort;
     private MyReceiver myReceiver;
 	
     @Override

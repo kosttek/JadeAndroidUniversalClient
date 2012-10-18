@@ -40,6 +40,7 @@ import java.io.IOException;
 import java.util.Hashtable;
 
 public class BookSellerAgent extends Agent {
+	public static final String INZYNIERKA_PATH = "/home/kosttek/Studia/inz/jade";
 	// The catalogue of books for sale (maps the title of a book to its price)
 	private Hashtable catalogue;
 	// The GUI by means of which the user can add books in the catalogue
@@ -50,7 +51,7 @@ public class BookSellerAgent extends Agent {
 		// Create the catalogue
 		catalogue = new Hashtable();
 
-		// Create and show the GUI 
+		// Create and show the GUI
 		myGui = new BookSellerGui(this);
 		myGui.showGui();
 
@@ -63,19 +64,18 @@ public class BookSellerAgent extends Agent {
 		dfd.addServices(sd);
 		try {
 			DFService.register(this, dfd);
-		}
-		catch (FIPAException fe) {
+		} catch (FIPAException fe) {
 			fe.printStackTrace();
 		}
-		
-		addBehaviour(new PushJarWithDexes());
+		System.out.println("==start==bookseller");
+		addBehaviour(new PushBytes());
 		// Add the behaviour serving queries from buyer agents
 		addBehaviour(new OfferRequestsServer());
 
 		// Add the behaviour serving purchase orders from buyer agents
 		addBehaviour(new PurchaseOrdersServer());
 		File file = new File(".");
-		System.out.println("==========>"+file.getAbsolutePath());
+		System.out.println("|==========>" + file.getAbsolutePath());
 	}
 
 	// Put agent clean-up operations here
@@ -83,41 +83,42 @@ public class BookSellerAgent extends Agent {
 		// Deregister from the yellow pages
 		try {
 			DFService.deregister(this);
-		}
-		catch (FIPAException fe) {
+		} catch (FIPAException fe) {
 			fe.printStackTrace();
 		}
 		// Close the GUI
 		myGui.dispose();
 		// Printout a dismissal message
-		System.out.println("Seller-agent "+getAID().getName()+" terminating.");
+		System.out.println("Seller-agent " + getAID().getName()
+				+ " terminating.");
 	}
 
 	/**
-     This is invoked by the GUI when the user adds a new book for sale
+	 * This is invoked by the GUI when the user adds a new book for sale
 	 */
 	public void updateCatalogue(final String title, final int price) {
 		addBehaviour(new OneShotBehaviour() {
 			public void action() {
 				catalogue.put(title, new Integer(price));
-				System.out.println(title+" inserted into catalogue. Price = "+price);
+				System.out.println(title + " inserted into catalogue. Price = "
+						+ price);
 			}
-		} );
+		});
 	}
 
 	/**
-	   Inner class OfferRequestsServer.
-	   This is the behaviour used by Book-seller agents to serve incoming requests 
-	   for offer from buyer agents.
-	   If the requested book is in the local catalogue the seller agent replies 
-	   with a PROPOSE message specifying the price. Otherwise a REFUSE message is
-	   sent back.
+	 * Inner class OfferRequestsServer. This is the behaviour used by
+	 * Book-seller agents to serve incoming requests for offer from buyer
+	 * agents. If the requested book is in the local catalogue the seller agent
+	 * replies with a PROPOSE message specifying the price. Otherwise a REFUSE
+	 * message is sent back.
 	 */
 	private class OfferRequestsServer extends CyclicBehaviour {
 		public void action() {
-			MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.CFP);
+			MessageTemplate mt = MessageTemplate
+					.MatchPerformative(ACLMessage.CFP);
 			ACLMessage msg = myAgent.receive(mt);
-			
+
 			if (msg != null) {
 				// CFP Message received. Process it
 				String title = msg.getContent();
@@ -125,34 +126,33 @@ public class BookSellerAgent extends Agent {
 
 				Integer price = (Integer) catalogue.get(title);
 				if (price != null) {
-					// The requested book is available for sale. Reply with the price
+					// The requested book is available for sale. Reply with the
+					// price
 					reply.setPerformative(ACLMessage.PROPOSE);
 					reply.setContent(String.valueOf(price.intValue()));
-				}
-				else {
+				} else {
 					// The requested book is NOT available for sale.
 					reply.setPerformative(ACLMessage.REFUSE);
 					reply.setContent("not-available");
 				}
 				myAgent.send(reply);
-			}
-			else {
+			} else {
 				block();
 			}
 		}
-	}  // End of inner class OfferRequestsServer
+	} // End of inner class OfferRequestsServer
 
 	/**
-	   Inner class PurchaseOrdersServer.
-	   This is the behaviour used by Book-seller agents to serve incoming 
-	   offer acceptances (i.e. purchase orders) from buyer agents.
-	   The seller agent removes the purchased book from its catalogue 
-	   and replies with an INFORM message to notify the buyer that the
-	   purchase has been sucesfully completed.
+	 * Inner class PurchaseOrdersServer. This is the behaviour used by
+	 * Book-seller agents to serve incoming offer acceptances (i.e. purchase
+	 * orders) from buyer agents. The seller agent removes the purchased book
+	 * from its catalogue and replies with an INFORM message to notify the buyer
+	 * that the purchase has been sucesfully completed.
 	 */
 	private class PurchaseOrdersServer extends CyclicBehaviour {
 		public void action() {
-			MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.ACCEPT_PROPOSAL);
+			MessageTemplate mt = MessageTemplate
+					.MatchPerformative(ACLMessage.ACCEPT_PROPOSAL);
 			ACLMessage msg = myAgent.receive(mt);
 			if (msg != null) {
 				// ACCEPT_PROPOSAL Message received. Process it
@@ -162,50 +162,108 @@ public class BookSellerAgent extends Agent {
 				Integer price = (Integer) catalogue.remove(title);
 				if (price != null) {
 					reply.setPerformative(ACLMessage.INFORM);
-					System.out.println(title+" sold to agent "+msg.getSender().getName());
-				}
-				else {
-					// The requested book has been sold to another buyer in the meanwhile .
+					System.out.println(title + " sold to agent "
+							+ msg.getSender().getName());
+				} else {
+					// The requested book has been sold to another buyer in the
+					// meanwhile .
 					reply.setPerformative(ACLMessage.FAILURE);
 					reply.setContent("not-available");
 				}
 				myAgent.send(reply);
-			}
-			else {
+			} else {
 				block();
 			}
 		}
-	}  
-	
+	}
+
 	private class PushJarWithDexes extends CyclicBehaviour {
 		public void action() {
-			MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.REQUEST);
+			MessageTemplate mt = MessageTemplate
+					.MatchPerformative(ACLMessage.REQUEST);
 			ACLMessage msg = myAgent.receive(mt);
+			System.out.println("pushjar");
 			if (msg != null) {
-				
+
 				File file = new File("./dexjar/secondary_dex.jar");
+				if(!file.exists())
+					file = new File(INZYNIERKA_PATH+"/dexjar/secondary_dex.jar");
 				FileInputStream fis;
-				byte [] byteSequenceContent;
-				
+				byte[] byteSequenceContent;
+
 				try {
-					
+
 					fis = new FileInputStream(file);
-					System.out.println("==========>"+file.getAbsolutePath());
-					byteSequenceContent = new byte[(int)file.length()];
+					System.out.println("==========>" + file.getAbsolutePath());
+					byteSequenceContent = new byte[(int) file.length()];
 					fis.read(byteSequenceContent);
 					ACLMessage reply = msg.createReply();
-					reply.setByteSequenceContent(byteSequenceContent);
+					// reply.setByteSequenceContent(byteSequenceContent);
+					reply.setByteSequenceContent(new byte[0]);
 					myAgent.send(reply);
-					
+
 				} catch (FileNotFoundException e) {
 					e.printStackTrace();
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
-			}
-			else {
+			} else {
 				block();
 			}
 		}
-	} 
+	}
+
+	private class PushBytes extends CyclicBehaviour {
+		 byte[] bytes = {};
+
+		public void action() {
+			MessageTemplate mt = MessageTemplate
+					.MatchPerformative(ACLMessage.REQUEST);
+			ACLMessage msg = myAgent.receive(mt);
+			System.out.println("pushbytes");
+			if (msg != null) {
+				System.out.println("mes content"+ msg.getContent());
+				if (msg != null && msg.getContent().equals("first")) {
+
+					ACLMessage reply = msg.createReply();
+					reply.setByteSequenceContent(bytes);
+					myAgent.send(reply);
+					System.out.println("=======>bytes send");
+
+				} else if (msg != null && msg.getContent().equals( "secound")) {
+					
+					
+					File file = new File("./dexjar/secondary_dex.jar");
+					if(!file.exists())
+						file = new File(INZYNIERKA_PATH+"/dexjar/secondary_dex.jar");
+					FileInputStream fis;
+					byte[] byteSequenceContent;
+
+					try {
+						ACLMessage reply = msg.createReply();
+						fis = new FileInputStream(file);
+						System.out.println("==========<>"
+								+ file.getAbsolutePath());
+						byteSequenceContent = new byte[(int) file.length()];
+						fis.read(byteSequenceContent);
+
+						reply.setByteSequenceContent(byteSequenceContent);
+						myAgent.send(reply);
+
+					} catch (FileNotFoundException e) {
+						e.printStackTrace();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				} else if (msg != null && msg.getConversationId().equals("push_bytes")) {
+					System.out.println("got bytes!");
+					bytes = msg.getByteSequenceContent();
+				}
+				
+			
+			} else {
+				block();
+			}
+		}
+	}
 }

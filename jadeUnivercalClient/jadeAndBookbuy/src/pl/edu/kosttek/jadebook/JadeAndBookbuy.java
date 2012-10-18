@@ -14,7 +14,7 @@ public class JadeAndBookbuy extends Application {
 	private static final String prefPort = "port";
 	private static final String prefName = "name";
 	
-	String startHost = "10.10.0.1";
+	String startHost = "10.0.0.1";
 	String startPort = "1099";
 	String startName = "buyer1";
 	

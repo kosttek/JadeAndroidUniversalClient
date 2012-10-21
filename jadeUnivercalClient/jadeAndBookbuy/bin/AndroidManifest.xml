@@ -28,6 +28,9 @@
         <activity
             android:name=".ui.SettingsActivity">
         </activity>
+        <activity
+            android:name=".ui.DynamicActivity">
+        </activity>
         
     </application>
 

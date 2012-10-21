@@ -14,7 +14,7 @@ import jade.wrapper.ControllerException;
 import java.util.logging.Level;
 
 import pl.edu.kosttek.jadebook.agent.AgentBuyerLoader;
-import pl.edu.kosttek.jadebook.agent.BookBuyerAgent;
+import pl.edu.kosttek.jadebook.agent.EmptyAgent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -22,13 +22,17 @@ import android.content.ServiceConnection;
 import android.os.IBinder;
 
 public class ServerConnection {
-	public static String AGENT_NAME = "buyer1";
+	private static ServerConnection serverConnection;
+	public static String AGENT_NAME = "client_"+System.currentTimeMillis();
 	private Logger logger = Logger.getJADELogger(this.getClass().getName());
 
 	private MicroRuntimeServiceBinder microRuntimeServiceBinder;
-	private ServiceConnection serviceConnection;
+	private static ServiceConnection serviceConnection;
 
 	private Context context;
+	
+	private OnLoadedAgentListener onLoadedAgentListener;
+	
 	private RuntimeCallback<AgentController> agentStartupCallback = new RuntimeCallback<AgentController>() {
 		@Override
 		public void onSuccess(AgentController agent) {
@@ -41,12 +45,21 @@ public class ServerConnection {
 		}
 	};
 
-	public ServerConnection(Context context) {
+	private ServerConnection(Context context) {
 		this.context = context;
+	}
+	
+	public static  ServerConnection getInstance(Context context){
+		if(serverConnection == null){
+			serverConnection = new ServerConnection(context);
+		}else{
+			serverConnection.context=context;
+		}
+		return serverConnection;
 	}
 
 	public void startConnection(final String host, final String port) {
-		startConnection(host, port, agentStartupCallback);
+		startConnection(host, port, getAgentStartupCallback());
 	}
 
 	private void startConnection(	final String host, 
@@ -56,18 +69,18 @@ public class ServerConnection {
 		final Properties profile = new Properties();
 		setProperties(host, port, profile);
 
-		if (microRuntimeServiceBinder == null) {
+		if (getMicroRuntimeServiceBinder() == null) {
 			serviceConnection = new ServiceConnection() {
 				public void onServiceConnected(ComponentName className,
 						IBinder service) {
-					microRuntimeServiceBinder = (MicroRuntimeServiceBinder) service;
+					setMicroRuntimeServiceBinder((MicroRuntimeServiceBinder) service);
 					logger.log(Level.INFO,
 							"Gateway successfully bound to MicroRuntimeService");
 					startContainer(profile, agentStartupCallback);
 				};
 
 				public void onServiceDisconnected(ComponentName className) {
-					microRuntimeServiceBinder = null;
+					setMicroRuntimeServiceBinder(null);
 					logger.log(Level.INFO,
 							"Gateway unbound from MicroRuntimeService");
 				}
@@ -109,14 +122,14 @@ public class ServerConnection {
 	private void startContainer(Properties profile,
 			final RuntimeCallback<AgentController> agentStartupCallback) {
 		if (!MicroRuntime.isRunning()) {
-			microRuntimeServiceBinder.startAgentContainer(profile,
+			getMicroRuntimeServiceBinder().startAgentContainer(profile,
 					new RuntimeCallback<Void>() {
 						@Override
 						public void onSuccess(Void thisIsNull) {
 							logger.log(Level.INFO,
 									"Successfully start of the container...");
 
-							startAgent(AGENT_NAME, agentStartupCallback);
+							startLoaderAgent(AGENT_NAME);
 						}
 
 						@Override
@@ -127,16 +140,15 @@ public class ServerConnection {
 					});
 		} else {
 
-			startAgent(AGENT_NAME, agentStartupCallback);
+			startLoaderAgent(AGENT_NAME);
 
 		}
 	}
 
-	private void startAgent(final String nickname,
-			final RuntimeCallback<AgentController> agentStartupCallback) {
+	private void startLoaderAgent(final String nickname) {
 
-		if (microRuntimeServiceBinder.pingBinder())
-			microRuntimeServiceBinder.startAgent(nickname,
+		if (getMicroRuntimeServiceBinder().pingBinder()){
+			getMicroRuntimeServiceBinder().startAgent(nickname,
 					AgentBuyerLoader.class.getName(), new Object[] { context,
 							"book" }, new RuntimeCallback<Void>() {
 						@Override
@@ -144,11 +156,11 @@ public class ServerConnection {
 							logger.log(Level.INFO, "Successfully start of the "
 									+AgentBuyerLoader.class.getName() + "...");
 							try {
-								agentStartupCallback.onSuccess(MicroRuntime
+								getAgentStartupCallback().onSuccess(MicroRuntime
 										.getAgent(nickname));
 							} catch (ControllerException e) {
 								// Should never happen
-								agentStartupCallback.onFailure(e);
+								getAgentStartupCallback().onFailure(e);
 							}
 						}
 
@@ -156,9 +168,64 @@ public class ServerConnection {
 						public void onFailure(Throwable throwable) {
 							logger.log(Level.SEVERE, "Failed to start the "
 									+ AgentBuyerLoader.class.getName() + "...");
-							agentStartupCallback.onFailure(throwable);
+							getAgentStartupCallback().onFailure(throwable);
 						}
 					});
+		}
+	}
+	public void startEmptyAgent(final String nickname) {
 
+		if (getMicroRuntimeServiceBinder().pingBinder()){
+			getMicroRuntimeServiceBinder().startAgent(nickname,
+					EmptyAgent.class.getName(), new Object[] { context },
+					new RuntimeCallback<Void>() {
+						@Override
+						public void onSuccess(Void thisIsNull) {
+							logger.log(Level.INFO, "Successfully start of the "
+									+EmptyAgent.class.getName() + "...");
+							try {
+								getAgentStartupCallback().onSuccess(MicroRuntime
+										.getAgent(nickname));
+								if(getOnLoadedAgentListener()!= null)
+									getOnLoadedAgentListener().loaded();
+							} catch (ControllerException e) {
+								// Should never happen
+								getAgentStartupCallback().onFailure(e);
+							}
+						}
+
+						@Override
+						public void onFailure(Throwable throwable) {
+							logger.log(Level.SEVERE, "Failed to start the "
+									+ EmptyAgent.class.getName() + "...");
+							getAgentStartupCallback().onFailure(throwable);
+						}
+					});
+		}
+	}
+	
+	public MicroRuntimeServiceBinder getMicroRuntimeServiceBinder() {
+		return microRuntimeServiceBinder;
+	}
+
+	public void setMicroRuntimeServiceBinder(MicroRuntimeServiceBinder microRuntimeServiceBinder) {
+		this.microRuntimeServiceBinder = microRuntimeServiceBinder;
+	}
+
+	public OnLoadedAgentListener getOnLoadedAgentListener() {
+		return onLoadedAgentListener;
+	}
+
+	public void setOnLoadedAgentListener(OnLoadedAgentListener onLoadedAgentListener) {
+		this.onLoadedAgentListener = onLoadedAgentListener;
+	}
+
+	public RuntimeCallback<AgentController> getAgentStartupCallback() {
+		return agentStartupCallback;
+	}
+
+	public void setAgentStartupCallback(RuntimeCallback<AgentController> agentStartupCallback) {
+		this.agentStartupCallback = agentStartupCallback;
 	}
 }
+

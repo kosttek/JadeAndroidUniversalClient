@@ -18,6 +18,8 @@ import pl.edu.kosttek.jadebook.R;
 import pl.edu.kosttek.jadebook.agent.BuyerInterface;
 import pl.edu.kosttek.jadebook.config.Config;
 import pl.edu.kosttek.jadebook.connection.ServerConnection;
+import pl.edu.kosttek.jadebook.receivers.LoadedJarReceiver;
+import pl.edu.kosttek.jadebook.receivers.LoaderAgentBroadcastReceiver;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -36,10 +38,11 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 public class JadeAndBookbuyActivity extends Activity {
-	public static final int PIERWSZY_ELEMENT = 1;
+	public static final int FIRST_MENU_ELEMENT = 1;
     String host = Config.jadeServerhost;
     String port = Config.jadeServerPort;
-    private MyReceiver myReceiver;
+    private LoaderAgentBroadcastReceiver myReceiver;
+    private LoadedJarReceiver loadedJarReceiver;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -47,13 +50,20 @@ public class JadeAndBookbuyActivity extends Activity {
         setContentView(R.layout.main);
         
         
-        ServerConnection serverConnection = new ServerConnection(this);
- 
-        myReceiver = new MyReceiver();
+        ServerConnection serverConnection = ServerConnection.getInstance(this);
+        
+        View mainView = ((ViewGroup)findViewById(android.R.id.content)).getChildAt(0);       
+        myReceiver = new LoaderAgentBroadcastReceiver(this,mainView);
         IntentFilter refreshParticipantsFilter = new IntentFilter();
 		refreshParticipantsFilter
 				.addAction("pl.edu.kosttek.REFRESH_AGENTS");
 		registerReceiver(myReceiver, refreshParticipantsFilter);
+		
+		loadedJarReceiver = new LoadedJarReceiver(this);
+        IntentFilter loadedJarFilter = new IntentFilter();
+        loadedJarFilter
+				.addAction("pl.edu.kosttek.DYNAMIC_ACTIVITY");
+		registerReceiver(loadedJarReceiver, loadedJarFilter);
         
         serverConnection.startConnection(host, port);
         System.out.println("started");
@@ -61,7 +71,7 @@ public class JadeAndBookbuyActivity extends Activity {
     }
     
     public boolean onCreateOptionsMenu(Menu menu) {
-    	menu.add(0, PIERWSZY_ELEMENT, 0, "Settings");
+    	menu.add(0, FIRST_MENU_ELEMENT, 0, "Settings");
     	return true;
     }
     @Override
@@ -76,86 +86,7 @@ public class JadeAndBookbuyActivity extends Activity {
     }
     
 
-    private class MyReceiver extends BroadcastReceiver {
-		@Override
-		public void onReceive(Context context, Intent intent) {
-			String action = intent.getAction();
-			Log.i("reciever", "Received intent " + action);
-			if (action.equalsIgnoreCase("pl.edu.kosttek.REFRESH_AGENTS")) {
-				List<String > list = new ArrayList<String>();
-				AgentController ac = null;
-				BuyerInterface buyer= null;
-				try {
-					ac = MicroRuntime.getAgent(ServerConnection.AGENT_NAME);
-					buyer = ac.getO2AInterface(BuyerInterface.class);
-					
-					
-				} catch (StaleProxyException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (ControllerException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				AID [] agentList = null;
-				if(buyer != null){
-					DFAgentDescription [] tempTab = buyer.getServerAgents(); 
-					agentList = new AID[tempTab.length];
-					for (int i = 0; i < tempTab.length; i++) {
-						agentList [i] = tempTab [i].getName();
-						
-					}
-					
-				}
-			
-				
-				
-				ListView lv = (ListView) findViewById(R.id.list1);
-				lv.setAdapter(new ServerAgentsAdapter(
-						JadeAndBookbuyActivity.this, R.layout.participant,
-						agentList));
-				lv.setOnItemClickListener(new OnAIDitemClickListener(buyer));
-			}
-		}
-	}
     
-    class ServerAgentsAdapter extends ArrayAdapter<AID> {
-    	AID[] elements;
-    	Context context;
-		public ServerAgentsAdapter(Context context, int textViewResourceId,
-				AID[] objects) {
-			super(context, textViewResourceId, objects);
-			elements = objects;
-			this.context = context;
-		}
-		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
-			TextView view = new TextView(context);
-			view.setText(elements[position].getName());
-			view.setTextSize(20);
-			return view;
-		}
-		@Override
-		public AID getItem(int position) {
-			return elements[position];
-		}
-    }
-
-    class OnAIDitemClickListener implements OnItemClickListener{
-    	BuyerInterface agent;
-    	public OnAIDitemClickListener(BuyerInterface agent) {
-    		this.agent = agent;
-		}
-
-		@Override
-		public void onItemClick(AdapterView<?> parent, View arg1, int position,
-				long arg3) {
-			AID elem = (AID)parent.getItemAtPosition(position);
-			agent.getBehaviour(elem);
-			Log.i("clicko", "clicko");
-		}
-    	
-    }
    
     
 }

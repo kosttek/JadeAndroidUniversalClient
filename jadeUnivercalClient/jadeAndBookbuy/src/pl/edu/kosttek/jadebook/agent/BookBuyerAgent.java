@@ -23,6 +23,8 @@ Boston, MA  02111-1307, USA.
 
 package pl.edu.kosttek.jadebook.agent;
 
+import java.io.File;
+
 import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.Behaviour;
@@ -198,7 +200,7 @@ public class BookBuyerAgent extends Agent implements BuyerInterface {
 		}
 	}  // End of inner class RequestPerformer
 
-	public DFAgentDescription[] getServerAgents() {
+	public DFAgentDescription[] getAgentsOnServer() {
 		// TODO Auto-generated method stub
 		return serverAgents;
 		
@@ -212,8 +214,14 @@ public class BookBuyerAgent extends Agent implements BuyerInterface {
 	}
 
 	@Override
-	public void getBehaviour(AID serverAgent) {
+	public void runBehaviour(AID serverAgent) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public File getTempFile() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

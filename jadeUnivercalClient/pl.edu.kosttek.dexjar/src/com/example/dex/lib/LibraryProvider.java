@@ -24,6 +24,9 @@ import jade.lang.acl.MessageTemplate;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
 
+import android.app.AlertDialog;
+import android.content.Context;
+
 public class LibraryProvider extends Behaviour implements Serializable {
 	/**
 	 * 
@@ -38,6 +41,7 @@ public class LibraryProvider extends Behaviour implements Serializable {
 	private MessageTemplate mt; // The template to receive replies
 	private int step = 0;
 	private int number = 0;
+	private Context context;
 
 	
 	//IMPORTANT SERIALIZATION
@@ -66,14 +70,16 @@ public class LibraryProvider extends Behaviour implements Serializable {
 //		number = in.readInt();
 //	}
 
-	public void setParams(AID[] sel, String bookname) {
+	public void setParams(AID[] sel, String bookname, Context context) {
 		sellerAgents = sel;
 		targetBookTitle = bookname;
+		this.context = context;
 	}
 
-	public LibraryProvider(AID[] sellerAgents, String targetBookTitle) {
+	public LibraryProvider(AID[] sellerAgents, String targetBookTitle, Context context) {
 		this.sellerAgents = sellerAgents;
 		this.targetBookTitle = targetBookTitle;
+		this.context = context;
 	}
 	public LibraryProvider() {
 	
@@ -93,8 +99,9 @@ public class LibraryProvider extends Behaviour implements Serializable {
 
 	public void action() {
 		new IntHandler().print();
-		System.out.println("#####one " + "\n -> " + getNumber());
+		System.out.println("#####one " + "\n -> " + getNumber()  );
 //		incrementNumber();
+//		createDialog(context);
 		switch (step) {
 		case 0:
 
@@ -188,6 +195,7 @@ public class LibraryProvider extends Behaviour implements Serializable {
 		return ((step == 2 && bestSeller == null) || step == 4);
 	}
 	
+
 	
 } // End of inner class RequestPerformer
 class IntHandler implements Serializable{
@@ -204,7 +212,7 @@ class IntHandler implements Serializable{
 		return number;
 	}
 	public void print(){
-		System.out.println("IntHandler yo!");
+		System.out.println("IntHandler yo2!");
 	}
 	private Object readResolve() throws ObjectStreamException {
 		LibraryProvider lp = new LibraryProvider();

@@ -50,6 +50,7 @@ import java.io.OutputStream;
 import java.io.StreamCorruptedException;
 import java.lang.reflect.InvocationTargetException;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Environment;
@@ -57,13 +58,14 @@ import android.util.Log;
 import dalvik.system.DexClassLoader;
 
 public class AgentBuyerLoader extends Agent implements BuyerInterface {
-	private static final String SECONDARY_DEX_NAME = "mydex.jar";
+
 	// The title of the book to buy
-	private String targetBookTitle;
+	public String targetBookTitle;
 	// The list of known seller agents
-	private AID[] sellerAgents;
+	public AID[] sellerAgents;
 	private DFAgentDescription[] serverAgents;
-	private Context context;
+	Context context;
+	private File tempFile;
 
 	// Put agent initializations here
 	protected void setup() {
@@ -126,7 +128,7 @@ public class AgentBuyerLoader extends Agent implements BuyerInterface {
 	// Put agent clean-up operations here
 	protected void takeDown() {
 		// Printout a dismissal message
-		System.out.println("Buyer-agent " + getAID().getName()
+		System.out.println("Loading-agent " + getAID().getName()
 				+ " terminating.");
 	}
 
@@ -134,12 +136,11 @@ public class AgentBuyerLoader extends Agent implements BuyerInterface {
 	 * Inner class RequestPerformer. This is the behaviour used by Book-buyer
 	 * agents to request seller agents the target book.
 	 */
-	public void getBehaviour(AID serverAgent) {
-		this.addBehaviour(new GetJarBehaviour(serverAgent));
+	public void runBehaviour(AID serverAgent) {
+		this.addBehaviour(new GetJarBehaviour(serverAgent,context));
 	}
 
-	public DFAgentDescription[] getServerAgents() {
-		// TODO Auto-generated method stub
+	public DFAgentDescription[] getAgentsOnServer() {
 		return serverAgents;
 
 	}
@@ -153,323 +154,15 @@ public class AgentBuyerLoader extends Agent implements BuyerInterface {
 		context.sendBroadcast(broadcast);
 	}
 
-	public class GetJarBehaviour extends Behaviour {
-		private MessageTemplate mt; // The template to receive replies
-		private int step = 0;
-		AID serverAgent;
-		byte serializedObject[] = null;
-		byte serializedObjectOut[] ;
-		Behaviour targetBehaviour;
-
-		public GetJarBehaviour(AID serverAgent) {
-			// TODO Auto-generated constructor stub
-			this.serverAgent = serverAgent;
-		}
-		
-		@Override
-		public void action() {
-
-			switch (step) {
-			case 0:
-				// Send the cfp to all sellers
-				ACLMessage request = new ACLMessage(ACLMessage.REQUEST);
-				// for (int i = 0; i < sellerAgents.length; ++i) {
-				// request.addReceiver(sellerAgents[i]);
-				// }
-				request.addReceiver(serverAgent);
-				request.setConversationId("get-jar");
-				request.setReplyWith("request" + System.currentTimeMillis()); // Unique
-																				// value
-				request.setContent("first");
-				myAgent.send(request);
-				// Prepare the template to get proposals
-				mt = MessageTemplate.and(
-						MessageTemplate.MatchConversationId("get-jar"),
-						MessageTemplate.MatchInReplyTo(request.getReplyWith()));
-				step = 1;
-				break;
-			case 1:
-
-				ACLMessage msg = myAgent.receive(mt);
-
-				if (msg != null) {
-					byte[] bytes = msg.getByteSequenceContent();
-					if (bytes == null || bytes.length == 0) {
-						System.out.println("empty response object");
-					} else {
-						System.out.println(bytes.length
-								+ "bytes length response object");
-					}
-					serializedObject = bytes;
-					step = 2;
-
-				} else {
-					System.out.println("object replay was null sorry ");
-					break;
-				}
-				break;
-			// break; ?? or not break
-			case 2:
-
-				request = new ACLMessage(ACLMessage.REQUEST);
-
-				request.addReceiver(serverAgent);
-				request.setConversationId("get-jar");
-				request.setReplyWith("request" + System.currentTimeMillis()); // Unique
-																				// value
-				request.setContent("secound");
-				myAgent.send(request);
-				// Prepare the template to get proposals
-				mt = MessageTemplate.and(
-						MessageTemplate.MatchConversationId("get-jar"),
-						MessageTemplate.MatchInReplyTo(request.getReplyWith()));
-				step = 3;
-				break;
-			case 3:
-
-				msg = myAgent.receive(mt);
-
-				if (msg != null) {
-					byte[] bytes = msg.getByteSequenceContent();
-					if (bytes == null || bytes.length == 0)
-						System.out.println("empty response");
-					System.out.println("+++++ " + bytes.length);
-
-					File directory = Environment.getExternalStorageDirectory();
-					File file = new File(directory + "/" + SECONDARY_DEX_NAME);
-					prepareDex(bytes, file);
-					step = 4;// done
-					try {
-						 targetBehaviour = getBehaviour(file, serializedObject);
-
-						myAgent.addBehaviour(targetBehaviour);
-						
-					} catch (IllegalArgumentException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (SecurityException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (InstantiationException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (IllegalAccessException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (InvocationTargetException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (NoSuchMethodException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} 
-					
-
-				} else {
-					System.out.println("jar replay was null sorry ");
-					block();
-					break;
-				}
-			case 4:
-				// serialize
-				ByteArrayOutputStream bos = new ByteArrayOutputStream();
-				ObjectOutput out = null;
-				try {
-					out = new ObjectOutputStream(bos);
-					out.writeObject(targetBehaviour);
-					byte[] yourBytes = bos.toByteArray();
-					serializedObjectOut = yourBytes;
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} finally {
-					try {
-						out.close();
-						bos.close();
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-
-				}
-				// serialize
-				
-				request = new ACLMessage(ACLMessage.REQUEST);
-
-				request.addReceiver(serverAgent);
-				request.setConversationId("push_bytes");
-				request.setReplyWith("request" + System.currentTimeMillis()); // Unique
-																	// value
-				request.setByteSequenceContent(serializedObjectOut);
-
-				myAgent.send(request);
-				// Prepare the template to get proposals
-				mt = MessageTemplate.and(
-						MessageTemplate.MatchConversationId("get-jar"),
-						MessageTemplate.MatchInReplyTo(request.getReplyWith()));
-				step = 5;
-				break;
-
-			}
-		}
-
-		@Override
-		public boolean done() {
-			// TODO Auto-generated method stub
-			if (step == 5)
-				return true;
-			return false;
-		}
-
-		public Behaviour getBehaviour(File internalStoragePath,
-				byte[] serializedObject) throws IllegalArgumentException,
-				SecurityException, InstantiationException,
-				IllegalAccessException, InvocationTargetException,
-				NoSuchMethodException {
-			final File optimizedDexOutputPath = context.getDir("outdex",
-					Context.MODE_PRIVATE);
-
-			DexClassLoader cl = new DexClassLoader(
-					internalStoragePath.getAbsolutePath(),
-					optimizedDexOutputPath.getAbsolutePath(), null,
-					context.getClassLoader());
-			Class myClass = null;
-			// =========list classes in jar
-
-			// String path = internalStoragePath.getAbsolutePath();
-			// try {
-			// DexFile dx = DexFile.loadDex(path, File.createTempFile("opt",
-			// "dex",
-			// context.getCacheDir()).getPath(), 0);
-			// // Print all classes in the DexFile
-			// System.out.println("SYSO");
-			// Log.i("","log");
-			// for(Enumeration<String> classNames = dx.entries();
-			// classNames.hasMoreElements();) {
-			// String className = classNames.nextElement();
-			// System.out.println("class: " + className);
-			// }
-			// } catch (IOException e) {
-			// Log.w("error", "Error opening " + path, e);
-			// }
-			// =========
-			try {
-
-				myClass = cl.loadClass("com.example.dex.lib.LibraryProvider");
-
-			} catch (Exception exception) {
-
-				exception.printStackTrace();
-			}
-			Object o= null;
-			if (serializedObject != null && serializedObject.length > 5) {
-				ByteArrayInputStream bis = new ByteArrayInputStream(
-						serializedObject);
-				ObjectInput in = null;
-				try {
-					in = new MyObjectInputStream(bis,cl);
-					o = in.readObject();
-					System.out.println(o);
-				} catch (StreamCorruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (ClassNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} finally {
-					try {
-						if (bis != null)
-							bis.close();
-						if (in != null)
-							in.close();
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-
-				}
-			}
-			Behaviour result = null;
-			if(o == null){
-				result = (Behaviour) myClass.getConstructor(AID[].class,
-					String.class).newInstance(sellerAgents, targetBookTitle);
-				
-			}
-			else{
-				myClass.getMethod("setParams", AID[].class,
-					String.class).invoke(o, sellerAgents, targetBookTitle);
-				myClass.getMethod("incrementNumber").invoke(o, null);
-				
-				result = (Behaviour) o;
-			}
-			return result;
-		}
+	public File getTempFile() {
+		return tempFile;
 	}
 
-	private boolean prepareDex(byte[] code, File dexInternalStoragePath) {
-
-		OutputStream dexWriter = null;
-
-		try {
-
-			dexWriter = new BufferedOutputStream(new FileOutputStream(
-					dexInternalStoragePath));
-
-			dexWriter.write(code);
-
-			dexWriter.close();
-
-			return true;
-		} catch (IOException e) {
-			if (dexWriter != null) {
-				try {
-					dexWriter.close();
-				} catch (IOException ioe) {
-					ioe.printStackTrace();
-				}
-			}
-
-			return false;
-		}
+	public void setTempFile(File tempFile) {
+		this.tempFile = tempFile;
 	}
 
+	
 }
 
-// MYCLASSES
-/*
- * 
- * 
- * 
- * 
- */
 
-class MyObjectInputStream extends ObjectInputStream {
-	ClassLoader classLoader;
-
-	public MyObjectInputStream(InputStream input, ClassLoader additionalClassLoader)
-			throws StreamCorruptedException, IOException {
-		super(input);
-		this.classLoader = additionalClassLoader;
-	}
-
-	@Override
-	protected Class resolveClass(ObjectStreamClass desc) throws IOException,
-			ClassNotFoundException {
-		String name = desc.getName();
-		try {
-			return Class.forName(name, false, classLoader);
-		} catch (ClassNotFoundException ex) {
-//			Class cl = (Class) primClasses.get(name);
-//			if (cl != null) {
-//				return cl;
-//			} else {
-//				throw ex;
-//			}
-			throw ex;
-		}
-	}
-
-}

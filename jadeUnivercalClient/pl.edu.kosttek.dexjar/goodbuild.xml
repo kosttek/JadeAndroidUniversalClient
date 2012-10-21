@@ -162,13 +162,13 @@
                 <!-- Compile .class files from the two stage directories to the apppropriate dex files. -->
 <!--                 <dex-helper-mod input-dir="${out.classes.absolute.dir}.1" -->
 <!--                     output-dex-file="${out.absolute.dir}/${dex.file.name}" /> -->
-                <mkdir dir="${out.absolute.dir}/secondary_dex_dir" />
+                <mkdir dir="${out.absolute.dir}" />
                 <dex-helper-mod input-dir="${out.classes.absolute.dir}.2"
-                    output-dex-file="${out.absolute.dir}/secondary_dex_dir/classes.dex" />
+                    output-dex-file="${out.absolute.dir}/classes.dex" />
                 <!-- Jar the secondary dex file so it can be consumed by the DexClassLoader. -->
                 <!-- Package the output in the assets directory of the apk. -->
                 <jar destfile="${out.absolute.dir}/secondary_dex.jar"
-                     basedir="${out.absolute.dir}/secondary_dex_dir" includes="classes.dex" />
+                     basedir="${out.absolute.dir}" includes="classes.dex" />
             </then>
             <else>
                 <echo>hasCode = false. Skipping...</echo>

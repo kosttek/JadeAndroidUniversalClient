@@ -198,8 +198,8 @@ public class BookSellerAgent extends Agent {
 					byteSequenceContent = new byte[(int) file.length()];
 					fis.read(byteSequenceContent);
 					ACLMessage reply = msg.createReply();
-					// reply.setByteSequenceContent(byteSequenceContent);
-					reply.setByteSequenceContent(new byte[0]);
+					 reply.setByteSequenceContent(byteSequenceContent);
+//					reply.setByteSequenceContent(new byte[0]);
 					myAgent.send(reply);
 
 				} catch (FileNotFoundException e) {

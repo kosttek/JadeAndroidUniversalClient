@@ -5,6 +5,7 @@ import pl.edu.kosttek.jadebook.JadeAndBookbuy;
 import pl.edu.kosttek.jadebook.R;
 import pl.edu.kosttek.jadebook.config.Config;
 import android.app.Activity;
+import android.content.Intent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -40,6 +41,14 @@ public class SettingsActivity extends Activity {
 			}
 		});
 	};
+	@Override
+	public void onBackPressed() {
+		Intent intent = new Intent(this, JadeAndBookbuyActivity.class);
+		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		startActivity(intent);
+		super.onBackPressed();
+	}
 	
 	
 }

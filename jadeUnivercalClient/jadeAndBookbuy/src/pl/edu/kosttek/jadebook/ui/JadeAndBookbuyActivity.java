@@ -85,7 +85,13 @@ public class JadeAndBookbuyActivity extends Activity {
         return true;
     }
     
-
+    @Override
+    protected void onStop()
+    {
+        unregisterReceiver(myReceiver);
+        unregisterReceiver(loadedJarReceiver);
+        super.onStop();
+    }
     
    
     

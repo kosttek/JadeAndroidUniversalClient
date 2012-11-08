@@ -36,6 +36,7 @@ class BookSellerGui extends JFrame {
 	private BookSellerAgent myAgent;
 	
 	private JTextField titleField, priceField;
+
 	
 	BookSellerGui(BookSellerAgent a) {
 		super(a.getLocalName());
@@ -51,6 +52,8 @@ class BookSellerGui extends JFrame {
 		priceField = new JTextField(15);
 		p.add(priceField);
 		getContentPane().add(p, BorderLayout.CENTER);
+		
+	
 		
 		JButton addButton = new JButton("Add");
 		addButton.addActionListener( new ActionListener() {
@@ -83,6 +86,7 @@ class BookSellerGui extends JFrame {
 	}
 	
 	public void showGui() {
+		
 		pack();
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		int centerX = (int)screenSize.getWidth() / 2;

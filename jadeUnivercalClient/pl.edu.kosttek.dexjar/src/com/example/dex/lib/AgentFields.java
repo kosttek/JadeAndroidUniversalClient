@@ -19,5 +19,5 @@ public class AgentFields {
 	public AID[] sellerAgents;
 	public Handler handler;
 	public TextView textView;
-
+    public int test = 0;
 }

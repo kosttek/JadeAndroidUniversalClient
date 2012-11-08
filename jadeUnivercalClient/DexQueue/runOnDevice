@@ -1,0 +1,1 @@
+ant debug;adb uninstall com.example.dex; adb install bin/secondary_dex_sample-debug.apk 

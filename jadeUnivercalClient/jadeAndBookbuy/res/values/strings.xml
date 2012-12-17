@@ -2,6 +2,9 @@
 <resources>
 
     <string name="hello">Hello World, JadeAndBookbuyActivity!</string>
-    <string name="app_name">JadeAndBookbuy</string>
+    <string name="app_name">JadeClient</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="menu_settings">Settings</string>
+    <string name="title_activity_server_search">Jade Client</string>
 
 </resources>

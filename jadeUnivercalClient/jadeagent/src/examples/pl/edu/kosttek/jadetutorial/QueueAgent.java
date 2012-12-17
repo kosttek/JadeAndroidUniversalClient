@@ -80,6 +80,7 @@ public class QueueAgent extends Agent {
 		} catch (FIPAException fe) {
 			fe.printStackTrace();
 		}
+		
 		System.out.println("==start==queue ");
 		addBehaviour(new PushJarWithDexes());
 		addBehaviour(new InformServer());
@@ -197,8 +198,9 @@ public class QueueAgent extends Agent {
 	
 	private class PushJarWithDexes extends CyclicBehaviour {
 		public void action() {
+			//
 			MessageTemplate mt = MessageTemplate
-					.MatchPerformative(ACLMessage.REQUEST);
+					.MatchPerformative(ACLMessage.REQUEST).MatchConversationId("get-jar");
 			ACLMessage msg = myAgent.receive(mt);
 			System.out.println("pushjar");
 			if (msg != null) {

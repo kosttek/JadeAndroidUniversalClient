@@ -6,7 +6,7 @@ import jade.core.Agent;
 import jade.core.MicroRuntime;
 import jade.wrapper.AgentController;
 import jade.wrapper.ControllerException;
-import pl.edu.kosttek.jadebook.agent.EmptyAgent;
+import pl.edu.kosttek.jadeclient.agent.EmptyAgent;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -149,7 +149,7 @@ public class Initiator {
 		lLayout.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT,
 				LayoutParams.MATCH_PARENT));
 		infoAmount = new TextView(context);
-		infoAmount.setTextColor(Color.WHITE);
+		infoAmount.setTextColor(Color.BLUE);
 		infoAmount.setTextSize(25);
 		infoAmount.setText("N/N");
 		infoAmount.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT,

@@ -1,7 +1,7 @@
 package com.example.dex.lib;
 
 import android.graphics.Color;
-import pl.edu.kosttek.jadebook.agent.EmptyAgent;
+import pl.edu.kosttek.jadeclient.agent.EmptyAgent;
 import jade.core.AID;
 import jade.core.behaviours.Behaviour;
 import jade.core.behaviours.CyclicBehaviour;

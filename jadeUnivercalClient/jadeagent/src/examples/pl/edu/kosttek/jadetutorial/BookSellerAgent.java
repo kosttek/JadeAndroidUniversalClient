@@ -67,6 +67,7 @@ public class BookSellerAgent extends Agent {
 		} catch (FIPAException fe) {
 			fe.printStackTrace();
 		}
+		
 		System.out.println("==start==bookseller");
 		addBehaviour(new PushBytes());
 		// Add the behaviour serving queries from buyer agents

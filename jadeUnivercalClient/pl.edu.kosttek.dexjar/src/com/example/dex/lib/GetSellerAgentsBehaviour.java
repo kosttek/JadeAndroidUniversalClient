@@ -7,7 +7,7 @@ import jade.domain.DFService;
 import jade.domain.FIPAException;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
-import pl.edu.kosttek.jadebook.agent.AddBehaviourInterface;
+import pl.edu.kosttek.jadeclient.agent.AddBehaviourInterface;
 import android.util.Log;
 
 public class GetSellerAgentsBehaviour extends TickerBehaviour{

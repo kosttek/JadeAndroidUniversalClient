@@ -6,7 +6,7 @@ import jade.core.Agent;
 import jade.core.MicroRuntime;
 import jade.wrapper.AgentController;
 import jade.wrapper.ControllerException;
-import pl.edu.kosttek.jadebook.agent.EmptyAgent;
+import pl.edu.kosttek.jadeclient.agent.EmptyAgent;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;

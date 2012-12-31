@@ -13,7 +13,7 @@ import jade.wrapper.ControllerException;
 
 import java.util.logging.Level;
 
-import pl.edu.kosttek.jadeclient.agent.AgentBuyerLoader;
+import pl.edu.kosttek.jadeclient.agent.AgentLoader;
 import pl.edu.kosttek.jadeclient.agent.EmptyAgent;
 import android.content.ComponentName;
 import android.content.Context;
@@ -149,12 +149,12 @@ public class ServerConnection {
 
 		if (getMicroRuntimeServiceBinder().pingBinder()){
 			getMicroRuntimeServiceBinder().startAgent(nickname,
-					AgentBuyerLoader.class.getName(), new Object[] { context,
+					AgentLoader.class.getName(), new Object[] { context,
 							"book" }, new RuntimeCallback<Void>() {
 						@Override
 						public void onSuccess(Void thisIsNull) {
 							logger.log(Level.INFO, "Successfully start of the "
-									+AgentBuyerLoader.class.getName() + "...");
+									+AgentLoader.class.getName() + "...");
 							try {
 								getAgentStartupCallback().onSuccess(MicroRuntime
 										.getAgent(nickname));
@@ -167,7 +167,7 @@ public class ServerConnection {
 						@Override
 						public void onFailure(Throwable throwable) {
 							logger.log(Level.SEVERE, "Failed to start the "
-									+ AgentBuyerLoader.class.getName() + "...");
+									+ AgentLoader.class.getName() + "...");
 							getAgentStartupCallback().onFailure(throwable);
 						}
 					});

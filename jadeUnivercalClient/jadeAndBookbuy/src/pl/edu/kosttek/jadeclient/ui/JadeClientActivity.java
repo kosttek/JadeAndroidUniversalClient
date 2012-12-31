@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import pl.edu.kosttek.jadeclient.R;
-import pl.edu.kosttek.jadeclient.agent.BuyerInterface;
+import pl.edu.kosttek.jadeclient.agent.LoaderInterface;
 import pl.edu.kosttek.jadeclient.config.Config;
 import pl.edu.kosttek.jadeclient.connection.ServerConnection;
 import pl.edu.kosttek.jadeclient.receivers.LoadedJarReceiver;

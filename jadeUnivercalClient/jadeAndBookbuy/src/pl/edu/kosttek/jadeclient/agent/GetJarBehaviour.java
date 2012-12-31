@@ -117,7 +117,7 @@ public class GetJarBehaviour extends Behaviour {
 					File directory = Environment.getExternalStorageDirectory();
 					File file = new File(directory + "/" + SECONDARY_DEX_NAME);
 					prepareDex(bytes, file);
-					((AgentBuyerLoader)myAgent).setTempFile(file);
+					((AgentLoader)myAgent).setTempFile(file);
 					step = 4;// done
 					try {
 //						 targetBehaviour = getBehaviour(file, serializedObject);

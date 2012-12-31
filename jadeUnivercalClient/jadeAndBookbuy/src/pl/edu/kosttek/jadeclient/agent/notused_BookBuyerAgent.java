@@ -39,7 +39,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
-public class notused_BookBuyerAgent extends Agent implements BuyerInterface {
+public class notused_BookBuyerAgent extends Agent implements LoaderInterface {
 	// The title of the book to buy
 	private String targetBookTitle;
 	// The list of known seller agents
@@ -51,7 +51,7 @@ public class notused_BookBuyerAgent extends Agent implements BuyerInterface {
 	protected void setup() {
 		// Printout a welcome message
 		System.out.println("Hallo! Buyer-agent "+getAID().getName()+" is ready.");
-		registerO2AInterface(BuyerInterface.class, this);
+		registerO2AInterface(LoaderInterface.class, this);
 		// Get the title of the book to buy as a start-up argument
 		Object[] args = getArguments();
 		if (args != null && args.length > 0) {
@@ -214,7 +214,7 @@ public class notused_BookBuyerAgent extends Agent implements BuyerInterface {
 	}
 
 	@Override
-	public void runBehaviour(AID serverAgent) {
+	public void runGetJarBehaviour(AID serverAgent) {
 		// TODO Auto-generated method stub
 		
 	}

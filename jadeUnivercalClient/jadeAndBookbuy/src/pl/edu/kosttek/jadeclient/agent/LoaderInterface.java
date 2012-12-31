@@ -5,8 +5,8 @@ import jade.domain.FIPAAgentManagement.DFAgentDescription;
 
 import java.io.File;
 
-public interface BuyerInterface {
+public interface LoaderInterface {
 	public  DFAgentDescription[] getAgentsOnServer();
-	public void runBehaviour(AID serverAgent);
+	public void runGetJarBehaviour(AID serverAgent);
 	public File getTempFile();
 }

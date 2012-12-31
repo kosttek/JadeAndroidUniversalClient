@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import pl.edu.kosttek.jadeclient.R;
-import pl.edu.kosttek.jadeclient.agent.BuyerInterface;
+import pl.edu.kosttek.jadeclient.agent.LoaderInterface;
 import pl.edu.kosttek.jadeclient.connection.ServerConnection;
 import pl.edu.kosttek.jadeclient.ui.DynamicActivity;
 import pl.edu.kosttek.jadeclient.ui.JadeClientActivity;
@@ -52,10 +52,10 @@ public class LoaderAgentBroadcastReceiver extends BroadcastReceiver {
 	private void refreshAgents(){
 		List<String > list = new ArrayList<String>();
 		AgentController ac = null;
-		BuyerInterface buyer= null;
+		LoaderInterface buyer= null;
 		try {
 			ac = MicroRuntime.getAgent(ServerConnection.AGENT_NAME);
-			buyer = ac.getO2AInterface(BuyerInterface.class);
+			buyer = ac.getO2AInterface(LoaderInterface.class);
 			
 			
 		} catch (StaleProxyException e) {
@@ -107,8 +107,8 @@ class ServerAgentsAdapter extends ArrayAdapter<AID> {
 }
 
 class OnAIDitemClickListener implements OnItemClickListener{
-	BuyerInterface agent;
-	public OnAIDitemClickListener(BuyerInterface agent) {
+	LoaderInterface agent;
+	public OnAIDitemClickListener(LoaderInterface agent) {
 		this.agent = agent;
 	}
 
@@ -116,7 +116,7 @@ class OnAIDitemClickListener implements OnItemClickListener{
 	public void onItemClick(AdapterView<?> parent, View arg1, int position,
 			long arg3) {
 		AID elem = (AID)parent.getItemAtPosition(position);
-		agent.runBehaviour(elem);
+		agent.runGetJarBehaviour(elem);
 		Log.i("clicko", "clicko");
 	}
 	

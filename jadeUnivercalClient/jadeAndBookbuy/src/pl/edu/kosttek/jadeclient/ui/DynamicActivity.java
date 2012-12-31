@@ -9,7 +9,7 @@ import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 
 import pl.edu.kosttek.jadeclient.R;
-import pl.edu.kosttek.jadeclient.agent.BuyerInterface;
+import pl.edu.kosttek.jadeclient.agent.LoaderInterface;
 import pl.edu.kosttek.jadeclient.connection.ServerConnection;
 import pl.edu.kosttek.jadeclient.dexfileload.DexFileLoader;
 import android.app.Activity;
@@ -54,7 +54,7 @@ public class DynamicActivity extends Activity {
 		try {
 			ac = MicroRuntime.getAgent(ServerConnection.AGENT_NAME);
 
-		BuyerInterface bi = ac.getO2AInterface(BuyerInterface.class);
+		LoaderInterface bi = ac.getO2AInterface(LoaderInterface.class);
 		File file = bi.getTempFile();
 		result =  dfl.runInitiator(file, ServerConnection.getInstance(this).getMicroRuntimeServiceBinder(),  ServerConnection.getInstance(this).getAgentStartupCallback());
 		} catch (ControllerException e) {

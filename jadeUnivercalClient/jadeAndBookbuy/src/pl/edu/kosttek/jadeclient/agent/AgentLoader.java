@@ -57,7 +57,7 @@ import android.os.Environment;
 import android.util.Log;
 import dalvik.system.DexClassLoader;
 
-public class AgentBuyerLoader extends Agent implements BuyerInterface {
+public class AgentLoader extends Agent implements LoaderInterface {
 
 	// The title of the book to buy
 	public String targetBookTitle;
@@ -72,7 +72,7 @@ public class AgentBuyerLoader extends Agent implements BuyerInterface {
 		// Printout a welcome message
 		System.out.println("Hallo! Buyer-agent " + getAID().getName()
 				+ " is ready.");
-		registerO2AInterface(BuyerInterface.class, this);
+		registerO2AInterface(LoaderInterface.class, this);
 		// Get the title of the book to buy as a start-up argument
 		Object[] args = getArguments();
 		if (args != null && args.length > 0) {
@@ -138,7 +138,7 @@ public class AgentBuyerLoader extends Agent implements BuyerInterface {
 	 * public method to get Jar 
 	 * 
 	 */
-	public void runBehaviour(AID serverAgent) {
+	public void runGetJarBehaviour(AID serverAgent) {
 		this.addBehaviour(new GetJarBehaviour(serverAgent,context));
 	}
 

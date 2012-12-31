@@ -43,10 +43,7 @@ public class LoaderAgentBroadcastReceiver extends BroadcastReceiver {
 		if (action.equalsIgnoreCase("pl.edu.kosttek.REFRESH_AGENTS")) {
 			refreshAgents();
 		}
-//		else if (action.equalsIgnoreCase("pl.edu.kosttek.DYNAMIC_ACTIVITY")){
-//			Intent intent2 = new Intent(context, DynamicActivity.class);
-//			context.startActivity(intent2);
-//		}
+
 	}
 	
 	private void refreshAgents(){

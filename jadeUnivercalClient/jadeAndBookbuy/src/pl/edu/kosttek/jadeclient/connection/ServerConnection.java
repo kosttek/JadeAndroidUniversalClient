@@ -55,7 +55,25 @@ public class ServerConnection {
 		}else{
 			serverConnection.context=context;
 		}
+		
 		return serverConnection;
+	}
+	
+	public void stopContainer(){
+		microRuntimeServiceBinder.stopAgentContainer(new RuntimeCallback<Void>() {
+
+			@Override
+			public void onFailure(Throwable arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void onSuccess(Void arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
 	}
 
 	public void startConnection(final String host, final String port) {

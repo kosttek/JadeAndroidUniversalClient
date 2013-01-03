@@ -108,9 +108,14 @@ public class JadeClientActivity extends Activity {
     	
 //        unregisterReceiver(myReceiver);
         unregisterReceiver(loadedJarReceiver);
+
         super.onStop();
     }
-    
+    @Override
+    public void onBackPressed() {
+    	super.onBackPressed();
+        ServerConnection.getInstance(this).stopContainer();
+    }
    
     
 }

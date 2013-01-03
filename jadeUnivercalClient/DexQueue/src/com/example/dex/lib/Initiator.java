@@ -149,7 +149,7 @@ public class Initiator {
 		lLayout.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT,
 				LayoutParams.MATCH_PARENT));
 		infoAmount = new TextView(context);
-		infoAmount.setTextColor(Color.BLUE);
+		infoAmount.setTextColor(Color.WHITE);
 		infoAmount.setTextSize(25);
 		infoAmount.setText("N/N");
 		infoAmount.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT,
